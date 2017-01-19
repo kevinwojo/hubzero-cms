@@ -1,0 +1,36 @@
+language: php
+
+php:
+  - 5.4
+  #- 5.5
+  #- 5.6
+
+before_install: composer self-update
+
+#FROM debian:7
+#MAINTAINER Kevin Wojkovich <kevinw@purdue.edu>
+#RUN apt-get update -y
+#RUN apt-get install vim tig git php5 php5-cli php5-curl -y
+#RUN cd ~/ && git clone https://github.com/hubzero/hubzero-cms
+#RUN cd ~/hubzero-cms/core && php bin/composer self-update
+#RUN cd ~/hubzero-cms && git checkout 2.1.0
+#RUN cd ~/hubzero-cms/core && php bin/composer install --prefer-source --no-interaction
+#RUN cd ~/hubzero-cms/core && php bin/composer require squizlabs/php_codesniffer
+#RUN cd ~/ && git clone https://github.com/hubzero/standards                                                                                                   
+#RUN cd ~/hubzero-cms && FILES=$(git log --pretty=format: --name-only --since="yesterday" | sort | uniq | tr '\r\n' ' ') &&  cd ~/hubzero-cms && ./core/vendor/bin/phpcs -np --standard=~/standards/Php/ruleset.xml --ignore=*/test/*,*/assets/*,*/views/*,*/tmpl/* $FILES
+#
+
+install:
+  - cd core
+  - composer install --prefer-source --no-interaction
+  - composer require squizlabs/php_codesniffer
+  - mkdir -p ~/build
+  - git clone --branch hubzero-cms-2.1 https://github.com/hubzero/standards ~/build/standards
+  - cd ../ && FILES=$(git log --pretty=format\:'' --name-only --since="yesterday" | sort | uniq | tr '\r\n' ' ')
+
+script:
+  - core/vendor/bin/phpcs -np --standard=~/build/standards/Php/ruleset.xml --ignore=*/test/*,*/assets/*,*/views/*,*/tmpl/* $FILES
+  #- vendor/bin/phpcs -np --standard=vendor/hubzero/standards/Php/ruleset.xml index.php
+
+after_script:
+  #- php vendor/bin/coveralls
